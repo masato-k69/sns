@@ -1,0 +1,70 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: sns API
+  description: sns api.
+  contact:
+    name: auhtor
+servers:
+  - url: http://localhost:1323/api
+    description: local
+paths:
+  /auth:
+    get:
+      description: 認証する。
+      operationId: auth
+      tags:
+        - auth
+      responses:
+        "200":
+          $ref: "#/components/responses/AuthResponse"
+        "403":
+          description: 認可しない。
+    delete:
+      description: 認証を破棄する。
+      operationId: deleteAuth
+      tags:
+        - auth
+      responses:
+        "200":
+          description: 破棄成功。
+        "403":
+          description: 認可しない。
+  /auth/verify:
+    get:
+      description: 認証内容を確認する。通常は認証ページからリダイレクトされる。
+      operationId: verifyAuth
+      tags:
+        - auth
+      parameters:
+        - in: query
+          name: code
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: 認証成功。
+        "403":
+          description: 認可しない。
+tags:
+  - name: auth
+
+components:
+  schemas:
+    URL:
+      type: string
+      pattern: ^https?://[\w/:%#\$&\?\(\)~\.=\+\-]+$
+      example: https://localhost
+  responses:
+    AuthResponse:  
+      description: 取得した認証情報
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              location:
+                $ref: "#/components/schemas/URL"
+            required:
+              - location

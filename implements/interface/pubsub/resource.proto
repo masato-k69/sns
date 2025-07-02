@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option go_package = "gen/pubsub";
+
+import "type.proto";
+
+message ResourceSearchIndex {
+    UUID resource_id = 1;
+    Resource resource_type = 2;
+    string keyword = 3;
+}

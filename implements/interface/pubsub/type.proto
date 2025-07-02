@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "gen/pubsub";
+
+import "google/protobuf/timestamp.proto";
+
+message At {
+    google.protobuf.Timestamp value = 1;
+}
+
+message UUID {
+    string value = 1;
+}
+
+message Resource {
+    string value = 1;
+}
+
+message Operation {
+    string value = 1;
+}
+
+message Action {
+    Resource resource = 1;
+    Operation operation = 2;
+}
+
+message Text {
+    string value = 1;
+}

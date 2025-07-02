@@ -1,0 +1,17 @@
+services:
+  # app
+  app:
+    container_name: app
+    build: ./_context/app
+    ports:
+      - 1323:1323
+    env_file:
+      - ./_context/app/.env
+    volumes:
+      - ./implements/app:/app
+    networks:
+      - sns_be
+
+networks:
+  sns_be:
+    external: true

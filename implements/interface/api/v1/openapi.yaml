@@ -1,0 +1,1879 @@
+openapi: "3.0.3"
+info:
+  version: 1.0.0
+  title: sns API
+  description: sns api.
+  contact:
+    name: auhtor
+servers:
+  - url: http://localhost:1323/api/v1
+    description: local
+paths:
+  /action:
+    get:
+      summary: サービスの利用者が制御可能なアクションを取得する
+      operationId: listAction
+      security:
+        - Session: []
+      tags:
+        - role
+      responses:
+        "200":
+          $ref: "#/components/responses/ListActionResponse"
+  /user/{user_id}/activity:
+    get:
+      summary: ユーザーアクティビティを取得する
+      operationId: listUserActivity
+      security:
+        - Session: []
+      tags:
+        - user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListUserActivityResponse"
+        "404":
+          description: 存在しない
+  /user/login:
+    get:
+      summary: 認証済みユーザーのログイン履歴を取得する
+      operationId: listUserLoginActivity
+      security:
+        - Session: []
+      tags:
+        - user
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListUserLoginActivityResponse"
+        "404":
+          description: 存在しない
+  /user/note:
+    get:
+      summary: 認証済みユーザーのプロフィールを編集する
+      description: |
+        receive: [
+          InsertedLineMessage,
+          MovedLineMessage,
+          EditedLineMessage,
+          DeletedLineMessage
+        ]
+        send: [
+          CurrentLinesMessage
+        ]
+      operationId: editUserProfile
+      security:
+        - Session: []
+      tags:
+        - user
+      parameters:
+        - in: header
+          name: Connection
+          schema:
+            type: string
+            example: Upgrade
+          required: true
+        - in: header
+          name: Upgrade
+          schema:
+            type: string
+            example: websocket
+          required: true
+        - in: header
+          name: Sec-WebSocket-Key
+          schema:
+            type: string
+            example: Y6VYu33mEHY6wri2N8BvUg==
+          required: true
+        - in: header
+          name: Sec-WebSocket-Version
+          schema:
+            type: string
+            example: 13
+          required: true
+        - in: header
+          name: Sec-WebSocket-Extensions
+          schema:
+            type: string
+            example: permessage-deflate; client_max_window_bits
+          required: true
+      responses:
+        "101":
+          description: プロトコルを切り替える
+          headers:
+            Connection: 
+              schema:
+                type: string
+            Upgrade:
+              schema:
+                type: string
+            Sec-WebSocket-Accept:
+              schema:
+                type: string
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /user/invite:
+    get:
+      summary: 認証済みユーザーの招待を取得する
+      operationId: listUserInvite
+      security:
+        - Session: []
+      tags:
+        - user
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListUserInviteResponse"
+  /user/invite/{invite_id}:
+    delete:
+      summary: 認証済みユーザーの招待に応答する
+      operationId: replyInvite
+      security:
+        - Session: []
+      tags:
+        - user
+      parameters:
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/ReplyUserInviteRequest"
+      responses:
+        "200":
+          description: 成功
+        "404":
+          description: 存在しない
+  /community:
+    post:
+      summary: コミュニティを作成する
+      operationId: createCommunity
+      security:
+        - Session: []
+      tags:
+        - community
+      requestBody:
+        $ref: "#/components/requestBodies/CreateCommunityRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/CreateCommunityResponse"
+        "403":
+          description: 認可しない
+  /community/{community_id}:
+    patch:
+      summary: コミュニティを更新する
+      operationId: updateCommunity
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateCommunityRequest"
+      responses:
+        "200":
+          description: 成功
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /community/{community_id}/note:
+    get:
+      summary: コミュニティの説明を編集する
+      description: |
+        receive: [
+          InsertedLineMessage,
+          MovedLineMessage,
+          EditedLineMessage,
+          DeletedLineMessage
+        ]
+        send: [
+          CurrentLinesMessage
+        ]
+      operationId: editCommunityDescription
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - in: header
+          name: Connection
+          schema:
+            type: string
+            example: Upgrade
+          required: true
+        - in: header
+          name: Upgrade
+          schema:
+            type: string
+            example: websocket
+          required: true
+        - in: header
+          name: Sec-WebSocket-Key
+          schema:
+            type: string
+            example: Y6VYu33mEHY6wri2N8BvUg==
+          required: true
+        - in: header
+          name: Sec-WebSocket-Version
+          schema:
+            type: string
+            example: 13
+          required: true
+        - in: header
+          name: Sec-WebSocket-Extensions
+          schema:
+            type: string
+            example: permessage-deflate; client_max_window_bits
+          required: true
+      responses:
+        "101":
+          description: プロトコルを切り替える
+          headers:
+            Connection: 
+              schema:
+                type: string
+            Upgrade:
+              schema:
+                type: string
+            Sec-WebSocket-Accept:
+              schema:
+                type: string
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /community/{community_id}/role:
+    post:
+      summary: コミュニティのロールを作成する
+      operationId: createCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateCommunityRoleRequest"
+      responses:
+        "201":
+          description: 作成済み
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: コミュニティのロールを取得する
+      operationId: listCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListCommunityRoleResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/role/{role_id}:
+    patch:
+      summary: コミュニティのロールを更新する
+      operationId: updateCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateCommunityRoleRequest"
+      responses:
+        "200":
+          description: 成功
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    delete:
+      summary: コミュニティのロールを削除する
+      operationId: deleteCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          description: 成功
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /community/{community_id}/role/{role_id}/invite:
+    post:
+      summary: コミュニティのロールに招待する
+      operationId: inviteCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/InviteCommunityRoleRequest"
+      responses:
+        "201":
+          description: 作成済み
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /community/{community_id}/member:
+    get:
+      summary: コミュニティのメンバーを取得する
+      operationId: listCommunityMember
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListCommunityMemberResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/member/{member_id}:
+    get:
+      summary: コミュニティのメンバーの詳細を取得する
+      operationId: getCommunityMember
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: member_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          $ref: "#/components/responses/GetCommunityMemberResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/invite:
+    get:
+      summary: コミュニティの招待を取得する
+      operationId: listCommunityInvite
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListCommunityInviteResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/invite/{invite_id}:
+    delete:
+      summary: コミュニティの招待を削除する
+      operationId: deleteCommunityInvite
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: invite_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          description: 成功
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+  /community/{community_id}/join:
+    post:
+      summary: コミュニティに参加（または申請）する
+      operationId: joinCommunity
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "201":
+          description: 参加済み
+        "202":
+          description: 申請済み
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: コミュニティのロールを取得する
+      operationId: listCommunityRole
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      responses:
+        "200":
+          $ref: "#/components/responses/ListCommunityRoleResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/topic:
+    post:
+      summary: コミュニティのトピックを作成する
+      operationId: createCommunityTopic
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateTopicRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/CreateTopicResponse"
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: コミュニティのトピックを取得する
+      operationId: listCommunityTopic
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListTopicResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/topic/{topic_id}:
+    post:
+      summary: トピックにスレッドを作成する（ポストする）
+      operationId: createCommunityThread
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/CreateThreadRequest"
+      responses:
+        "201":
+          description: 作成済み
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: トピックのスレッドを取得する
+      operationId: listCommunityThread
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListThreadResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/topic/{topic_id}/thread/{thread_id}:
+    post:
+      summary: スレッドにポストを作成する（リプライする）
+      operationId: createCommunityPost
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/CreatePostRequest"
+      responses:
+        "201":
+          description: 作成済み
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: スレッドのポストを取得する
+      operationId: listCommunityPost
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListPostResponse"
+        "404":
+          description: 存在しない
+  /community/{community_id}/topic/{topic_id}/thread/{thread_id}/post/{post_id}/like:
+    post:
+      summary: ポストに対し支持/不支持を表明する
+      operationId: likePost
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+      requestBody:
+        $ref: "#/components/requestBodies/LikeRequest"
+      responses:
+        "202":
+          description: 受付完了
+        "403":
+          description: 認可しない
+        "404":
+          description: 存在しない
+    get:
+      summary: ポストの支持/不支持の内容を取得する
+      operationId: listPostLike
+      security:
+        - Session: []
+      tags:
+        - community
+      parameters:
+        - name: community_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: topic_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: thread_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: post_id
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/ID"
+        - name: limit
+          in: query
+          schema:
+            $ref: "#/components/schemas/Limit"
+          required: true
+        - name: offset
+          in: query
+          schema:
+            $ref: "#/components/schemas/Offset"
+          required: true
+        - name: like
+          in: query
+          schema:
+            type: boolean
+          required: true
+      responses:
+        "200":
+          $ref: "#/components/responses/ListPostLikeResponse"
+        "404":
+          description: 存在しない
+
+
+
+
+components:
+  schemas:
+    MessagesToRecieve:
+      description: 受け取るメッセージ
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/RecieveType"
+        entity:
+          oneOf:
+          - type: object
+            $ref: "#/components/schemas/InsertedLineMessage"
+          - type: object
+            $ref: "#/components/schemas/MovedLineMessage"
+          - type: object
+            $ref: "#/components/schemas/EditedLineMessage"
+          - type: object
+            $ref: "#/components/schemas/DeletedLineMessage"
+      required:
+        - type
+        - entity
+    RecieveType:
+      description: |
+        受け取るメッセージの種類
+        * insert - 挿入
+        * move - 移動
+        * update - 更新
+        * delete - 削除
+      type: string
+      enum:
+        - insert
+        - move
+        - update
+        - delete
+    InsertedLineMessage:
+      description: 挿入した行
+      type: object
+      properties: 
+        to:
+          $ref: "#/components/schemas/OrderNumber"
+      required:
+        - to
+    MovedLineMessage:
+      description: 移動した行
+      type: object
+      properties: 
+        from:
+          $ref: "#/components/schemas/OrderNumber"
+        to:
+          $ref: "#/components/schemas/OrderNumber"
+      required:
+        - from
+        - to
+    EditedLineMessage:
+      description: 内容を編集した行
+      $ref: "#/components/schemas/Line"
+    DeletedLineMessage:
+      description: 削除した行
+      type: object
+      properties: 
+        to:
+          $ref: "#/components/schemas/OrderNumber"
+      required:
+        - to
+    MessagesToSend:
+      description: 送信されるメッセージ
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/SendType"
+        entity:
+          oneOf:
+          - type: object
+            $ref: "#/components/schemas/CurrentLinesMessage"
+      required:
+        - type
+        - entity
+    SendType:
+      description: |
+        送信されるメッセージの種類
+        * current - 現在の全行
+      type: string
+      enum:
+        - current
+    CurrentLinesMessage:
+      description: 現在の全行
+      type: array
+      items:
+        $ref: "#/components/schemas/Line"
+      minItems: 0   
+    Line:
+      description: 行
+      type: object
+      properties: 
+        order:
+          $ref: "#/components/schemas/OrderNumber"
+        property:
+          $ref: "#/components/schemas/LineProperty"
+        contents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Content"
+          minItems: 0
+      required:
+        - order
+        - contents
+    LinePropertyType:
+      description: |
+        行の属性の種類
+        * toggle - トグル
+        * blockquote - 引用
+        * callout - 強調
+      type: string
+      enum:
+        - toggle
+        - blockquote
+        - callout
+    LineProperty:
+      description: 行の属性
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LinePropertyType"
+      required:
+        - type
+    OrderNumber:
+      description: 連番
+      type: integer
+      minimum: 1
+    ContentType:
+      description: |
+        内容の種類
+        * text - テキスト
+        * heading - 見出し
+        * list - 箇条書き
+        * checkbox - チェックボックス
+        * radiobutton - ラジオボタン
+        * line - 水平線
+        * img - 画像
+        * mentions - メンション
+      type: string
+      enum:
+        - text
+        - heading
+        - list
+        - checkbox
+        - radiobutton
+        - line
+        - img
+        - mentions
+    Content:
+      description: 内容
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/ContentType"
+        entity:
+          oneOf:
+          - type: object
+            $ref: "#/components/schemas/Text"
+          - type: object
+            $ref: "#/components/schemas/Heading"
+          - type: object
+            $ref: "#/components/schemas/List"
+          - type: object
+            $ref: "#/components/schemas/CheckBox"
+          - type: object
+            $ref: "#/components/schemas/RadioButton"
+          - type: object
+            $ref: "#/components/schemas/HorizontalLine"
+          - type: object
+            $ref: "#/components/schemas/Image"
+          - type: object
+            $ref: "#/components/schemas/Mentions"
+      required:
+        - type
+        - entity
+    Text:
+      description: テキスト
+      type: object
+      properties: 
+        value:
+          $ref: "#/components/schemas/LongMessage"
+        option:
+          $ref: "#/components/schemas/TextProperty"
+      required:
+        - value
+        - option
+    TextProperty:
+      description: テキストの属性
+      type: object
+      properties: 
+        bold:
+          description: 太字
+          type: boolean
+          default: false
+        oblique:
+          description: 斜体
+          type: boolean
+          default: false
+        underline:
+          description: 下線
+          type: boolean
+          default: false
+        through:
+          description: 打ち消し戦
+          type: boolean
+          default: false
+        color:
+          $ref: "#/components/schemas/ColorCode"
+        url:
+          $ref: "#/components/schemas/URL"
+      required:
+        - bold
+        - oblique
+        - underline
+        - through
+    ColorCode:
+      description: 16進数の色コード
+      type: string
+      example: "#000000"
+    URL:
+      type: string
+      pattern: ^https?://[\w/:%#\$&\?\(\)~\.=\+\-]+$
+      example: https://localhost
+    Heading:
+      description: 見出し
+      type: object
+      properties: 
+        value:
+          $ref: "#/components/schemas/Text"
+        level:
+          $ref: "#/components/schemas/HeadingLevel"
+      required:
+        - value
+        - level
+    HeadingLevel:
+      description: 見出しレベル
+      type: integer
+      minimum: 1
+      maximum: 4
+    List:
+      description: 箇条書き
+      type: object
+      properties: 
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/ListElement"
+          minItems: 1
+        type:
+          $ref: "#/components/schemas/ListType"
+      required:
+        - values
+        - type
+    ListType:
+      description: |
+        リストの種類
+        * midpoint - 中黒
+        * integer - 数字
+      type: string
+      enum:
+        - midpoint
+        - integer
+    ListElement:
+      description: リストの要素
+      type: object
+      properties: 
+        value:
+          $ref: "#/components/schemas/Text"
+        indent:
+          $ref: "#/components/schemas/Indent"
+      required:
+        - value
+        - indent
+    Indent:
+      description: インデント
+      type: integer
+      minimum: 1
+    CheckBox:
+      description: チェックボックス
+      type: object
+      properties: 
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/CheckBoxElement"
+          minItems: 1
+      required:
+        - values
+    CheckBoxElement:
+      description: チェックボックスの要素
+      type: object
+      properties: 
+        value:
+          $ref: "#/components/schemas/Text"
+        checked:
+          type: boolean
+          default: false
+      required:
+        - value
+        - checked
+    RadioButton:
+      description: ラジオボタン
+      type: object
+      properties: 
+        values:
+          type: array
+          items:
+            $ref: "#/components/schemas/RadioButtonElement"
+          minItems: 1
+      required:
+        - values
+    RadioButtonElement:
+      description: ラジオボタンの要素
+      type: object
+      properties: 
+        value:
+          $ref: "#/components/schemas/Text"
+        checked:
+          type: boolean
+          default: false
+      required:
+        - value
+        - checked
+    HorizontalLine:
+      description: 水平線
+      type: object
+      properties: 
+        size:
+          type: integer
+          minimum: 0
+          maximum: 4
+      required:
+        - size
+    Image:
+      description: 画像
+      type: object
+      properties: 
+        url:
+          $ref: "#/components/schemas/URL"
+        width:
+          type: string
+        height:
+          type: string
+      required:
+        - url
+    Mentions:
+      type: array
+      items:
+        $ref: "#/components/schemas/Mention"
+      minItems: 1
+      maxItems: 10
+    Mention:
+      description: メンション
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        resource:
+          $ref: "#/components/schemas/Resource"
+      required:
+        - id
+        - resource     
+    ID:
+      type: string
+      format: uuid
+    Name:
+      type: string
+      maxLength: 128
+    ShortMessage:
+      type: string
+      maxLength: 140
+    LongMessage:
+      type: string
+      maxLength: 4096
+    Resource:
+      description: |
+        リソース
+        * user - ユーザー
+        * community - コミュニティ
+        * member - メンバー
+        * role - ロール
+        * topic - トピック
+        * thread - スレッド
+        * post - ポスト
+        * project - プロジェクト
+        * milestone - プロジェクトのマイルストーン
+        * task - プロジェクトのタスク
+        * tag - タグ
+        * election - 投票
+        * choose - 投票の選択肢
+        * like - 支持/不支持
+      type: string
+      enum:
+        - user
+        - community
+        - member
+        - role
+        - topic
+        - thread
+        - post
+        - project
+        - milestone
+        - task
+        - tag
+        - election
+        - choose
+        - like
+    Operation:
+      description: |
+        操作
+        * create - 作成
+        * update - 更新
+        * delete - 削除
+      type: string
+      enum:
+        - create
+        - update
+        - delete
+    Action:
+      description: 行動
+      type: object
+      properties:
+        resource:
+          $ref: "#/components/schemas/Resource"
+        operations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Operation"
+      required:
+        - resource
+        - operations
+    Experience:
+      description: 体験
+      type: object
+      properties:
+        resource:
+          oneOf:
+            - type: object
+              $ref: "#/components/schemas/Login"
+            - type: object
+              $ref: "#/components/schemas/Community"
+            - type: object
+              $ref: "#/components/schemas/Member"
+            - type: object
+              $ref: "#/components/schemas/Role"
+            - type: object
+              $ref: "#/components/schemas/Topic"
+            - type: object
+              $ref: "#/components/schemas/Post"
+            - type: object
+              $ref: "#/components/schemas/Like"
+        operation:
+          $ref: "#/components/schemas/Operation"
+      required:
+        - resource
+        - operation
+    Role:
+      description: ロール
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        name:
+          $ref: "#/components/schemas/Name"
+        actions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Action"
+      required:
+        - id
+        - name
+        - actions
+    Member:
+      description: メンバー
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        role:
+          $ref: "#/components/schemas/Role"
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - id
+        - user
+    User:
+      description: ユーザー
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        name:
+          $ref: "#/components/schemas/Name"
+        image:
+          $ref: "#/components/schemas/URL"
+      required:
+        - id
+        - name
+    CommunityInvite:
+      description: コミュニティによる招待
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        role:
+          $ref: "#/components/schemas/Role"
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        at:
+          $ref: "#/components/schemas/UnixTime"
+        message:
+          $ref: "#/components/schemas/ShortMessage"
+      required:
+        - id
+        - role
+        - users
+        - at
+    UserInvite:
+      description: ユーザーが受けた招待
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        community:
+          $ref: "#/components/schemas/Community"
+        role:
+          $ref: "#/components/schemas/Role"
+        at:
+          $ref: "#/components/schemas/UnixTime"
+        message:
+          $ref: "#/components/schemas/ShortMessage"
+      required:
+        - id
+        - community
+        - role
+        - at
+    Agreement:
+      description: |
+        合意
+        * true - 合意する
+        * false - 合意しない
+      type: boolean
+      default: false
+    Community:
+      description: コミュニティ
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        name:
+          $ref: "#/components/schemas/Name"
+        invitation:
+          type: boolean
+          default: false
+      required:
+        - id
+        - name
+        - invitation
+    Limit:
+      type: integer
+      minimum: 0
+      maximum: 100
+    Offset:
+      type: integer
+      minimum: 0
+    UnixTime:
+      type: integer
+      description: UNIX時間（秒単位）
+      minLength: 10
+      maxLength: 10
+    Topic:
+      description: 話題
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        name:
+          $ref: "#/components/schemas/Name"
+        contents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Content"
+          minItems: 1
+          maxItems: 10
+        created:
+          $ref: "#/components/schemas/Member"
+        last_post:
+          $ref: "#/components/schemas/Post"
+      required:
+        - id
+        - name
+        - contents
+    Thread:
+      description: スレッド
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        first_post:
+          $ref: "#/components/schemas/Post"
+        reply:
+          type: boolean
+      required:
+        - id
+        - first_post
+        - reply
+    Post:
+      description: ポスト
+      type: object
+      properties:
+        id:
+          $ref: "#/components/schemas/ID"
+        at:
+          $ref: "#/components/schemas/UnixTime"
+        contents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Content"
+          minItems: 1
+          maxItems: 5
+        created:
+          $ref: "#/components/schemas/Member"
+        reaction:
+          $ref: "#/components/schemas/Reaction"
+      required:
+        - id
+        - at
+        - contents
+        - reaction
+    Reaction:
+      description: リアクション
+      type: object
+      properties:
+        likes:
+          description: 支持数
+          type: integer
+          minimum: 0
+        dislikes:
+          description: 不支持数
+          type: integer
+          minimum: 0
+      required:
+        - likes
+        - dislikes
+    Like:
+      description: 支持/不支持
+      type: object
+      properties:
+        like:
+          type: boolean
+        comment:
+          $ref: "#/components/schemas/ShortMessage"
+        by:
+          $ref: "#/components/schemas/Member"
+      required:
+        - like
+    Login:
+      description: ログイン
+      properties:
+        ip_address:
+          type: string
+        operation_system:
+          type: string
+        user_agent:
+          type: string
+      required:
+        - ip_address
+        - operation_system
+        - user_agent
+    Activity:
+      description: アクティビティ
+      properties:
+        When:
+          $ref: "#/components/schemas/UnixTime"
+        where:
+          oneOf:
+          - type: object
+            $ref: "#/components/schemas/Community"
+        who:
+          oneOf:
+          - type: object
+            $ref: "#/components/schemas/User"
+          - type: object
+            $ref: "#/components/schemas/Member"
+          - type: object
+            $ref: "#/components/schemas/Role"
+        did:
+          $ref: "#/components/schemas/Experience"
+      required:
+        - when
+        - did
+
+  requestBodies:
+    CreateCommunityRequest:  
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: "#/components/schemas/Name"
+              invitation:
+                type: boolean
+                default: false
+            required:
+              - name
+              - invitation
+    UpdateCommunityRequest:  
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: "#/components/schemas/Name"
+            required:
+              - name
+    CreateCommunityRoleRequest:  
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: "#/components/schemas/Name"
+              actions:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Action"
+            required:
+              - name
+              - actions
+    UpdateCommunityRoleRequest:  
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: "#/components/schemas/Name"
+              actions:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Action"
+            required:
+              - name
+              - actions
+    InviteCommunityRoleRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              mention:
+                $ref: "#/components/schemas/Mentions"
+              message:
+                $ref: "#/components/schemas/ShortMessage"
+            required:
+              - mention
+              - message
+    ReplyUserInviteRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              agree:
+                $ref: "#/components/schemas/Agreement"
+            required:
+              - agree
+    CreateTopicRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                $ref: "#/components/schemas/Name"
+              contents:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Content"
+                minItems: 1
+                maxItems: 10
+            required:
+              - name
+              - contents
+    CreateThreadRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contents:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Content"
+                minItems: 1
+                maxItems: 5
+            required:
+              - contents
+    CreatePostRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              contents:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Content"
+                minItems: 1
+                maxItems: 5
+            required:
+              - contents
+    LikeRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              like:
+                type: boolean
+              comment:
+                $ref: "#/components/schemas/ShortMessage"
+            required:
+              - like
+
+
+
+  responses:
+    CreateCommunityResponse:  
+      description: 作成したコミュニティ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/components/schemas/ID"
+            required:
+              - id
+    ListActionResponse:
+      description: 取得したアクション（リソースとリソースに対する操作）
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              resources:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resource"
+                minItems: 0
+              operations:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Operation"
+                minItems: 0
+            required:
+              - resources
+              - operations
+    ListCommunityRoleResponse:  
+      description: 取得したロール
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              roles:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Role"
+                minItems: 1
+            required:
+              - roles
+    ListCommunityMemberResponse:  
+      description: 取得したメンバー
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              members:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+                minItems: 1
+            required:
+              - members
+    GetCommunityMemberResponse:  
+      description: 取得したメンバー
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              member:
+                $ref: "#/components/schemas/Member"
+              recent_activities:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+                maxItems: 10
+            required:
+              - member
+              - recent_activities
+    ListCommunityInviteResponse:  
+      description: 取得した招待
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              invites:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CommunityInvite"
+                minItems: 0
+            required:
+              - invites
+    ListUserInviteResponse:  
+      description: 取得した招待
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              invites:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserInvite"
+                minItems: 0
+            required:
+              - invites
+    CreateTopicResponse:  
+      description: 作成したトピック
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                $ref: "#/components/schemas/ID"
+            required:
+              - id
+    ListTopicResponse:  
+      description: 取得したトピック
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              topics:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+                minItems: 0
+            required:
+              - topics
+    ListThreadResponse:  
+      description: 取得したスレッド
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              threads:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Thread"
+                minItems: 0
+            required:
+              - threads
+    ListPostResponse:  
+      description: 取得したポスト
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              posts:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+                minItems: 1
+            required:
+              - posts
+    ListPostLikeResponse:  
+      description: 取得した支持/不支持
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              likes:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Like"
+            required:
+              - likes
+    ListUserActivityResponse:  
+      description: 取得したアクティビティ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              activities:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+            required:
+              - activities
+    ListUserLoginActivityResponse:  
+      description: 取得したログイン履歴
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              activities:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Activity"
+            required:
+              - activities
+
+
+
+
+
+
+  securitySchemes:
+    Session:
+      type: apiKey
+      in: cookie
+      name: session

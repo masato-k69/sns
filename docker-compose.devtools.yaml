@@ -1,0 +1,107 @@
+services:
+  # devtools
+  mysql:
+    container_name: mysql
+    build: ./_context/devtools/mysql
+    ports:
+      - 3306:3306
+    env_file:
+      - ./_context/devtools/mysql/.env
+    volumes:
+      - ./_context/devtools/mysql/data:/var/lib/db
+      - ./_context/devtools/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - sns_be
+    command: --collation-server=utf8mb4_0900_bin
+  mongo:
+    container_name: mongo
+    build: ./_context/devtools/mongo
+    ports:
+      - 27017:27017
+    env_file:
+      - ./_context/devtools/mongo/.env
+    volumes:
+      - ./_context/devtools/mongo/data/db:/data/db
+      - ./_context/devtools/mongo/data/configdb:/data/configdb
+    networks:
+      - sns_be
+  mongo_cli:
+    container_name: mongo_cli
+    build: ./_context/devtools/mongo_cli
+    ports:
+      - 8082:8081
+    env_file:
+      - ./_context/devtools/mongo_cli/.env
+    depends_on:
+      - mongo
+    networks:
+      - sns_be
+  influxdb:
+    container_name: influxdb
+    build: ./_context/devtools/influxdb
+    ports:
+      - 8086:8086
+    env_file:
+      - ./_context/devtools/influxdb/.env
+    volumes:
+      - ./_context/devtools/influxdb/data/data:/var/lib/influxdb2
+      - ./_context/devtools/influxdb/data/config:/etc/nfluxdb2
+    networks:
+      - sns_be
+  redis:
+    container_name: redis
+    build: ./_context/devtools/redis
+    ports:
+      - 6379:6379
+    env_file:
+      - ./_context/devtools/redis/.env
+    volumes:
+      - ./_context/devtools/redis/data:/data
+    networks:
+      - sns_be
+  redis_cli:
+    container_name: redis_cli
+    build: ./_context/devtools/redis_cli
+    ports:
+      - 8083:8081
+    env_file:
+      - ./_context/devtools/redis_cli/.env
+    depends_on:
+      - redis
+    networks:
+      - sns_be
+  rabbitmq:
+    container_name: rabbitmq
+    build: ./_context/devtools/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - ./_context/devtools/rabbitmq/.env
+    volumes:
+      - ./_context/devtools/rabbitmq/data:/var/lib/rabbitmq
+    networks:
+      - sns_be
+  elasticsearch:
+    container_name: elasticsearch
+    build: ./_context/devtools/elasticsearch
+    ports:
+      - 9200:9200
+    env_file:
+      - ./_context/devtools/elasticsearch/.env
+    volumes:
+      - ./_context/devtools/elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - sns_be
+  kibana:
+    container_name: kibana
+    build: ./_context/devtools/kibana
+    ports:
+      - 5601:5601
+    env_file:
+      - ./_context/devtools/kibana/.env
+    networks:
+      - sns_be
+networks:
+  sns_be:
+    external: true

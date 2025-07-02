@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option go_package = "gen/pubsub";
+
+import "type.proto";
+
+message UserLoginActivity {
+    At at = 1;
+    UUID user_id = 2;
+    string ip_address = 3;
+    string operation_system = 4;
+    string user_agent = 5;
+}
+
+message MemberActivity {
+    At at = 1;
+    UUID member = 2;
+    UUID target = 3;
+    Action action = 4;
+}
+
+message MemberLikeActivity {
+    At at = 1;
+    UUID member = 2;
+    UUID target = 3;
+    Resource resource = 4;
+    bool like = 5;
+    Text comment = 6;
+}

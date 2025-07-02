@@ -1,0 +1,27 @@
+from(bucket: "activities")
+	|> range(start:0, stop: now())
+	|> filter(fn: (r) => r._measurement =="user_login_activities")
+	|> keep(columns: ["_time", "_field", "_value"])
+	|> pivot(rowKey:["_time"], columnKey:["_field"], valueColumn:"_value")
+	|> sort(columns:["_time"], desc: false)
+
+from(bucket: "activities")
+	|> range(start:0, stop: now())
+	|> filter(fn: (r) => r._measurement =="member_activities")
+	|> keep(columns: ["_time", "_field", "_value"])
+	|> pivot(rowKey:["_time"], columnKey:["_field"], valueColumn:"_value")
+	|> sort(columns:["_time"], desc: false)
+
+from(bucket: "activities")
+	|> range(start:0, stop: now())
+	|> filter(fn: (r) => r._measurement =="member_like_activities")
+	|> keep(columns: ["_time", "_field", "_value"])
+	|> pivot(rowKey:["_time"], columnKey:["_field"], valueColumn:"_value")
+	|> sort(columns:["_time"], desc: false)
+
+
+
+＃付加価値
+ポストの支持・不支持
+コミュニティタグ（ElasticSearch管理してリソース検索する想定）
+メンバーバッヂ（定期集計して付与・はく奪する想定）
