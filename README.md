@@ -1,3 +1,6 @@
+# WIP
+## codegen
+
 ```
 api$ oapi-codegen -config ../../_context/app/oapi-codegen/config.yaml ../interface/api/openapi.yaml
 api$ oapi-codegen -config ../../_context/app/oapi-codegen/v1/config.yaml ../interface/api/v1/openapi.yaml
